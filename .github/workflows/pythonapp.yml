@@ -25,7 +25,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test catchphrase-generator
       run: |
-        ls -al
+        # ls -al
         chmod +x ./catchphrase-generator.py
-        ls -al
+        # ls -al
         ./catchphrase-generator.py
