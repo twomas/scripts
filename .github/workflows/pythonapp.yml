@@ -26,4 +26,4 @@ jobs:
     - name: Test catchphrase-generator
       run: |
         ls
-        catchphrase-generator.py
+        ./catchphrase-generator.py
