@@ -23,8 +23,8 @@ def anything(str_url,key):
 			print(' ')
 		except:
 			print(' ')
-def phrase():
-	str_url = 'https://randomwordgenerator.com/json/phrases.json'
+
+def phrase(str_url):
 	for url in [str_url]:
 		try:
 			response = requests.get(url)
@@ -49,14 +49,14 @@ def main():
 	#print(str(random))
 	
 	if random == 1:
-	  anything('https://randomwordgenerator.com/json/questions.json','question')
+		anything('https://randomwordgenerator.com/json/questions.json','question')
 	elif random == 2:
-	  anything('https://randomwordgenerator.com/json/facts.json','fact')
+		anything('https://randomwordgenerator.com/json/facts.json','fact')
 	elif random == 3:
-	  anything('https://randomwordgenerator.com/json/act-of-kindness.json','act_of_kindness')
+		anything('https://randomwordgenerator.com/json/act-of-kindness.json','act_of_kindness')
 	elif random == 4:
-	  anything('https://randomwordgenerator.com/json/act-of-kindness.json','inspirational-quote')
+		anything('https://randomwordgenerator.com/json/act-of-kindness.json','inspirational-quote')
 	else:
-		phrase()
+		phrase('https://randomwordgenerator.com/json/phrases.json')
 
 main()
