@@ -26,4 +26,6 @@ jobs:
     - name: Test catchphrase-generator
       run: |
         ls -al
-        sudo ./catchphrase-generator.py
+        chmod +x ./catchphrase-generator.py
+        ls -al
+        ./catchphrase-generator.py
