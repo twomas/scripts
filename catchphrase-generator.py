@@ -10,8 +10,8 @@ def anything(str_url,key):
 	for url in [str_url]:
 		try:
 			response = requests.get(url)
-			#print(json.loads(response.content))
-			data_dict = json.loads(response.content)
+			#print(json.loads(response.text))
+			data_dict = json.loads(response.text)
 			#print(data_dict)
 			size = len(data_dict['data'])
 			#print(size)
@@ -28,8 +28,8 @@ def phrase(str_url):
 	for url in [str_url]:
 		try:
 			response = requests.get(url)
-			#print(json.loads(response.content))
-			data_dict = json.loads(response.content)
+			#print(json.loads(response.text))
+			data_dict = json.loads(response.text)
 			#print(data_dict)
 			size = len(data_dict['data'])
 			#print(size)
