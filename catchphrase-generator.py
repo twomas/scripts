@@ -4,8 +4,11 @@ import sys
 import json
 from random import randrange
 
+msgglobal = ' ' # global
+
 def requester(url,debug):
 	try:
+		# python -m pip install requests
 		import requests
 		
 		response = requests.get(url, timeout=(1, 2))
@@ -20,6 +23,27 @@ def requester(url,debug):
 		pass
 		
 	return data_dict
+
+def notification(title,msg):
+	try:
+		# python -m pip install plyer
+		from plyer import notification
+
+		notification.notify(
+			title = title,
+			message = msg,
+			app_icon = None,  # e.g. 'C:\\icon_32x32.ico'
+			timeout = 5,  # seconds
+		)
+	except:
+		pass
+
+def show(str):
+	global msgglobal
+	print(' ')
+	print(str)
+	print(' ')
+	msgglobal = str
 
 # https://github.com/fortrabbit/quotes/blob/master/quotes.json
 def quotes(str_url,debug):
@@ -38,9 +62,7 @@ def quotes(str_url,debug):
 			text = data_dict[index]['text']
 			author = data_dict[index]['author']
 			sentence = text + '\n' + 'Author: ' + author
-			print(' ')
-			print(sentence)
-			print(' ')
+			show(sentence)
 		except:
 			pass
 
@@ -64,15 +86,15 @@ def words(str_url,key,debug):
 				sentence = phrase + '\n' + 'Meaning: ' + meaning
 			else:
 				sentence = data_dict['data'][index][key]
-			print(' ')
-			print(sentence)
-			print(' ')
+			show(sentence)
 		except:
 			pass
 			
 def main():
 
+	global msgglobal
 	debug = False
+	title = None
 	
 	try:
 		import argparse
@@ -80,7 +102,10 @@ def main():
 		parser = argparse.ArgumentParser()
 		parser.add_argument("-d", "--debug", help="debug info", action="store_true")
 		parser.add_argument("-t", "--test", help="run tests", action="store_true")
+		parser.add_argument("-n", "--notify", help="show notification", type=str)
 		args = parser.parse_args()
+		if args.notify:
+			title = args.notify
 		if args.debug:
 			debug = True
 		if args.test:
@@ -118,6 +143,15 @@ def main():
 		words('https://randomwordgenerator.com/json/questions.json','question',debug)
 	else:
 		quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
+		
+	if title:
+		if debug:
+			try:
+				print('title:')
+				print(title)
+			except:
+				pass
+		notification(title,msgglobal)
 
 if __name__ == "__main__":
 	main()

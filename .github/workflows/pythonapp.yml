@@ -26,3 +26,4 @@ jobs:
     - name: Test catchphrase-generator
       run: |
         ./catchphrase-generator.py --test
+        ./catchphrase-generator.py --notify 'ready! ✌️' --debug
