@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# From https://github.com/twomas/scripts
 
 import sys
 import json
@@ -6,6 +7,12 @@ from random import randrange
 
 msgglobal = ' ' # global
 
+def debugPrint(msg,debug):
+	if debug:
+		print(' ')
+		print('    ' + msg)
+		print(' ')
+	
 def requester(url,debug):
 	data_dict = None
 	try:
@@ -13,9 +20,8 @@ def requester(url,debug):
 		import requests
 		
 		response = requests.get(url, timeout=(1, 2))
-		if debug:
-			print(url)
-			print(response) 
+		debugPrint(url + ' ' + str(response),debug)
+
 	except:
 		pass
 	
@@ -48,44 +54,41 @@ def show(str):
 	print(str)
 	print(' ')
 	msgglobal = str
+	
+def random(dict,debug):
+	size = len(dict)
+	debugPrint('size: ' + str(size),debug)
+	index = randrange(int(size))
+	debugPrint('index: ' + str(index),debug)
+	
+	return index
 
 # https://github.com/fortrabbit/quotes/blob/master/quotes.json
 def quotes(str_url,debug):
-	if debug:
-		print('quotes')
+	debugPrint('quotes',debug)
+
 	#for url in [str_url,str_url]:
 	for url in [str_url]:
 		try:
 			data_dict = requester(url,debug)
-			size = len(data_dict)
-			if debug:
-				print('size: ' + str(size))
-			index = randrange(int(size))
-			if debug:
-				print('index: ' + str(index))
+			index = random(data_dict,debug)
 			text = data_dict[index]['text']
 			author = data_dict[index]['author']
 			sentence = text + '\n' + 'Author: ' + author
 			show(sentence)
 		except:
-			if debug:
-				print('quotes error!')
+			debugPrint('quotes error!',debug)
 			pass
 
 # https://randomwordgenerator.com/json/
 def words(str_url,key,debug):
-	if debug:
-		print('words')
+	debugPrint('words',debug)
+
 	#for url in [str_url,str_url]:
 	for url in [str_url]:
 		try:
 			data_dict = requester(url,debug)
-			size = len(data_dict['data'])
-			if debug:
-				print('size: ' + str(size))
-			index = randrange(int(size))
-			if debug:
-				print('index: ' + str(index))
+			index = random(data_dict['data'],debug)
 			if not key:
 				phrase = data_dict['data'][index]['phrase']
 				meaning = data_dict['data'][index]['meaning']
@@ -94,31 +97,23 @@ def words(str_url,key,debug):
 				sentence = data_dict['data'][index][key]
 			show(sentence)
 		except:
-			if debug:
-				print('words error!')
+			debugPrint('words error!',debug)
 			pass
 
 # https://github.com/twomas/scripts/blob/master/phrases.json
 def phrases(str_url,debug):
-	if debug:
-		print('phrases')
+	debugPrint('phrases',debug)
 	#for url in [str_url,str_url]:
 	for url in [str_url]:
 		try:
 			data_dict = requester(url,debug)
-			size = len(data_dict)
-			if debug:
-				print('size: ' + str(size))
-			index = randrange(int(size))
-			if debug:
-				print('index: ' + str(index))
+			index = random(data_dict,debug)
 			text = data_dict[index]['text']
 			more = data_dict[index]['more']
 			sentence = text + '\n' + more
 			show(sentence)
 		except:
-			if debug:
-				print('phrases error!')
+			debugPrint('phrases error!',debug)
 			pass
 			
 def main():
@@ -140,21 +135,14 @@ def main():
 		if args.debug:
 			debug = True
 		if args.test:
-			print('test mode!!!')
-			if debug:
-				print(' ')
+			debugPrint('test mode!!!',debug)
 			# test some errors
-			if debug:
-				print('test some errors')
-				print(' ')
+			debugPrint('test some errors',debug)
 			quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.jsonnnn',debug)
 			words('https://randomwordgenerator.com/json/questions.json','questionnnn',debug)
 			words('https://randomwordgeneratorrrr.com/json/questions.json','question',debug)
 			# should be ok
-			if debug:
-				print(' ')
-				print('should be ok')
-				print(' ')
+			debugPrint('should be ok',debug)
 			requester('https://lionseksjo.wordpress.com/kontakt/',debug)
 			quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 			words('https://randomwordgenerator.com/json/facts.json','fact',debug)
@@ -166,13 +154,11 @@ def main():
 			words('https://randomwordgenerator.com/json/phrases.json',None,debug)
 			phrases('https://raw.githubusercontent.com/twomas/scripts/master/phrases.json',debug)
 	except:
-		if debug:
-			print('test error!')
+		debugPrint('test error!',debug)
 		debug = False
 	
 	random = randrange(6+2) # An effort to hit quotes more often
-	if debug:
-		print('random number: ' + str(random))
+	debugPrint('random number: ' + str(random),debug)
 	
 	if random == 0:
 		words('https://randomwordgenerator.com/json/phrases.json',None,debug)
@@ -190,12 +176,11 @@ def main():
 		quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 		
 	if title:
-		if debug:
-			try:
-				print('title:')
-				print(title)
-			except:
-				pass
+		try:
+			debugPrint('title:',debug)
+			debugPrint(title,debug)
+		except:
+			pass
 		notification(title,msgglobal)
 
 if __name__ == "__main__":
