@@ -7,11 +7,15 @@ from random import randrange
 msgglobal = ' ' # global
 
 def requester(url,debug):
+	data_dict = None
 	try:
 		# python -m pip install requests
 		import requests
 		
 		response = requests.get(url, timeout=(1, 2))
+		if debug:
+			print(url)
+			print(response) 
 	except:
 		pass
 	
@@ -64,6 +68,8 @@ def quotes(str_url,debug):
 			sentence = text + '\n' + 'Author: ' + author
 			show(sentence)
 		except:
+			if debug:
+				print('quotes error!')
 			pass
 
 # https://randomwordgenerator.com/json/
@@ -88,6 +94,8 @@ def words(str_url,key,debug):
 				sentence = data_dict['data'][index][key]
 			show(sentence)
 		except:
+			if debug:
+				print('words error!')
 			pass
 
 # https://github.com/twomas/scripts/blob/master/phrases.json
@@ -109,6 +117,8 @@ def phrases(str_url,debug):
 			sentence = text + '\n' + more
 			show(sentence)
 		except:
+			if debug:
+				print('phrases error!')
 			pass
 			
 def main():
@@ -134,19 +144,30 @@ def main():
 			if debug:
 				print(' ')
 			# test some errors
+			if debug:
+				print('test some errors')
+				print(' ')
 			quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.jsonnnn',debug)
 			words('https://randomwordgenerator.com/json/questions.json','questionnnn',debug)
 			words('https://randomwordgeneratorrrr.com/json/questions.json','question',debug)
 			# should be ok
+			if debug:
+				print(' ')
+				print('should be ok')
+				print(' ')
+			requester('https://lionseksjo.wordpress.com/kontakt/',debug)
 			quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 			words('https://randomwordgenerator.com/json/facts.json','fact',debug)
 			words('https://randomwordgenerator.com/json/act-of-kindness.json','act_of_kindness',debug)
-			words('https://randomwordgenerator.com/json/act-of-kindness.json','inspirational-quote',debug)
+			words('https://randomwordgenerator.com/json/sentences.json','sentence',debug)
 			words('https://randomwordgenerator.com/json/questions.json','question',debug)
+			words('https://randomwordgenerator.com/json/fake-words.json','word',debug)
+			words('https://randomwordgenerator.com/json/make-money.json','idea',debug)
 			words('https://randomwordgenerator.com/json/phrases.json',None,debug)
 			phrases('https://raw.githubusercontent.com/twomas/scripts/master/phrases.json',debug)
-			sys.exit()
 	except:
+		if debug:
+			print('test error!')
 		debug = False
 	
 	random = randrange(6+2) # An effort to hit quotes more often
@@ -160,7 +181,7 @@ def main():
 	elif random == 2:
 		words('https://randomwordgenerator.com/json/act-of-kindness.json','act_of_kindness',debug)
 	elif random == 3:
-		words('https://randomwordgenerator.com/json/act-of-kindness.json','inspirational-quote',debug)
+		words('https://randomwordgenerator.com/json/fake-words.json','word',debug)
 	elif random == 4:
 		words('https://randomwordgenerator.com/json/questions.json','question',debug)
 	elif random == 5:
