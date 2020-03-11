@@ -89,6 +89,27 @@ def words(str_url,key,debug):
 			show(sentence)
 		except:
 			pass
+
+# https://github.com/twomas/scripts/blob/master/phrases.json
+def phrases(str_url,debug):
+	if debug:
+		print('phrases')
+	#for url in [str_url,str_url]:
+	for url in [str_url]:
+		try:
+			data_dict = requester(url,debug)
+			size = len(data_dict)
+			if debug:
+				print('size: ' + str(size))
+			index = randrange(int(size))
+			if debug:
+				print('index: ' + str(index))
+			text = data_dict[index]['text']
+			more = data_dict[index]['more']
+			sentence = text + '\n' + more
+			show(sentence)
+		except:
+			pass
 			
 def main():
 
@@ -122,12 +143,13 @@ def main():
 			words('https://randomwordgenerator.com/json/act-of-kindness.json','act_of_kindness',debug)
 			words('https://randomwordgenerator.com/json/act-of-kindness.json','inspirational-quote',debug)
 			words('https://randomwordgenerator.com/json/questions.json','question',debug)
-			words('https://randomwordgenerator.com/json/phrases.json', None,debug)
+			words('https://randomwordgenerator.com/json/phrases.json',None,debug)
+			phrases('https://raw.githubusercontent.com/twomas/scripts/master/phrases.json',debug)
 			sys.exit()
 	except:
 		debug = False
 	
-	random = randrange(5+2) # An effort to hit quotes more often
+	random = randrange(6+2) # An effort to hit quotes more often
 	if debug:
 		print('random number: ' + str(random))
 	
@@ -141,6 +163,8 @@ def main():
 		words('https://randomwordgenerator.com/json/act-of-kindness.json','inspirational-quote',debug)
 	elif random == 4:
 		words('https://randomwordgenerator.com/json/questions.json','question',debug)
+	elif random == 5:
+		phrases('https://raw.githubusercontent.com/twomas/scripts/master/phrases.json',debug)
 	else:
 		quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 		
