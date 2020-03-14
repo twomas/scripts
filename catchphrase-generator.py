@@ -34,7 +34,7 @@ def requester(url,debug):
 		
 	return data_dict
 
-def notification(title,msg):
+def notification(title,msg,timer):
 	try:
 		# python -m pip install plyer
 		from plyer import notification
@@ -43,7 +43,7 @@ def notification(title,msg):
 			title = title,
 			message = msg,
 			app_icon = None,  # e.g. 'C:\\icon_32x32.ico'
-			timeout = 5,  # seconds
+			timeout = timer,  # seconds
 		)
 	except:
 		pass
@@ -115,12 +115,32 @@ def phrases(str_url,debug):
 		except:
 			debugPrint('phrases error!',debug)
 			pass
+
+def popuploop(title,msg,seconds):
+	# python -m pip install pysimplegui
+	import PySimpleGUI as sg
+	
+	sg.theme('DarkBlack')   # Add a touch of color
+	# All the stuff inside your window.
+	layout = [ [ sg.Text(msg) ] ]
+
+	# Create the Window
+	if title:
+		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=.5, grab_anywhere=True)
+	else:
+		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=.5, grab_anywhere=True)
+	
+	event, values = window.Read(timeout=seconds * 1000) 
+	window.close()
 			
 def main():
 
 	global msgglobal
 	debug = False
-	title = None
+	notify = None
+	popup1 = None
+	popup2 = None
+	delay = None
 	
 	try:
 		import argparse
@@ -129,9 +149,19 @@ def main():
 		parser.add_argument("-d", "--debug", help="debug info", action="store_true")
 		parser.add_argument("-t", "--test", help="run tests", action="store_true")
 		parser.add_argument("-n", "--notify", help="show notification", type=str)
+		parser.add_argument("-p", "--popup1", help="show popup1", type=str)
+		parser.add_argument("-q", "--popup2", help="show popup2", type=str)
+		parser.add_argument("-c", "--delay", help="show popup time", type=str)
 		args = parser.parse_args()
+		
 		if args.notify:
-			title = args.notify
+			notify = args.notify
+		if args.popup1:
+			popup1 = args.popup1
+		if args.popup2:
+			popup2 = args.popup2
+		if args.delay:
+			delay = args.delay
 		if args.debug:
 			debug = True
 		if args.test:
@@ -153,6 +183,10 @@ def main():
 			words('https://randomwordgenerator.com/json/make-money.json','idea',debug)
 			words('https://randomwordgenerator.com/json/phrases.json',None,debug)
 			phrases('https://raw.githubusercontent.com/twomas/scripts/master/phrases.json',debug)
+			delay = 5
+			notify = 'notify'
+			popup1 = 'popup1'
+			popup2 = 'popup2'
 	except:
 		debugPrint('test error!',debug)
 		debug = False
@@ -175,13 +209,33 @@ def main():
 	else:
 		quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 		
-	if title:
+	if notify:
 		try:
-			debugPrint('title:',debug)
-			debugPrint(title,debug)
+			timer = '3'
+			if delay:
+				timer = int(delay)
+			notification(notify,msgglobal,timer)
 		except:
 			pass
-		notification(title,msgglobal)
+		
+	if popup1:
+		try:
+			timer = '30'
+			if delay:
+				timer = int(delay)
+			popuploop(popup1,msgglobal,timer)
+		except:
+			pass
+			
+	if popup2:
+		try:
+			text = popup2 + '\n' + msgglobal
+			timer = '30'
+			if delay:
+				timer = int(delay)
+			popuploop(None,text,timer)
+		except:
+			pass
 
 if __name__ == "__main__":
 	main()
