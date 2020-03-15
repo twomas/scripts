@@ -3,15 +3,10 @@
 
 import sys
 import json
-from random import randrange
+from random import randrange	
+from datetime import datetime
 
 msgglobal = ' ' # global
-
-def debugPrint(msg,debug):
-	if debug:
-		print(' ')
-		print('    ' + msg)
-		print(' ')
 	
 def requester(url,debug):
 	data_dict = None
@@ -34,6 +29,19 @@ def requester(url,debug):
 		
 	return data_dict
 
+def debugPrint(msg,debug):
+	if debug:
+		print(' ')
+		print('    ' + msg)
+		print(' ')
+
+def show(str):
+	global msgglobal
+	print(' ')
+	print(str)
+	print(' ')
+	msgglobal = str
+	
 def notification(title,msg,timer):
 	try:
 		# python -m pip install plyer
@@ -48,12 +56,22 @@ def notification(title,msg,timer):
 	except:
 		pass
 
-def show(str):
-	global msgglobal
-	print(' ')
-	print(str)
-	print(' ')
-	msgglobal = str
+def popuploop(title,msg,seconds):
+	# python -m pip install pysimplegui
+	import PySimpleGUI as sg
+	
+	sg.theme('DarkBlack')   # Add a touch of color
+	# All the stuff inside your window.
+	layout = [ [ sg.Text(msg) ] ]
+
+	# Create the Window
+	if title:
+		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=.5, grab_anywhere=True)
+	else:
+		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=.5, grab_anywhere=True)
+	
+	event, values = window.Read(timeout=seconds * 1000) 
+	window.close()
 	
 def random(dict,debug):
 	size = len(dict)
@@ -115,23 +133,6 @@ def phrases(str_url,debug):
 		except:
 			debugPrint('phrases error!',debug)
 			pass
-
-def popuploop(title,msg,seconds):
-	# python -m pip install pysimplegui
-	import PySimpleGUI as sg
-	
-	sg.theme('DarkBlack')   # Add a touch of color
-	# All the stuff inside your window.
-	layout = [ [ sg.Text(msg) ] ]
-
-	# Create the Window
-	if title:
-		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=.5, grab_anywhere=True)
-	else:
-		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=.5, grab_anywhere=True)
-	
-	event, values = window.Read(timeout=seconds * 1000) 
-	window.close()
 			
 def main():
 
@@ -209,12 +210,16 @@ def main():
 	else:
 		quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 		
+	dateTimeObj = datetime.now()
+	timestampStr = dateTimeObj.strftime('%H:%M:%S')
+	body = timestampStr + '\n' + msgglobal
+	
 	if notify:
 		try:
 			timer = '3'
 			if delay:
 				timer = int(delay)
-			notification(notify,msgglobal,timer)
+			notification(notify,body,timer)
 		except:
 			pass
 		
@@ -223,13 +228,13 @@ def main():
 			timer = '30'
 			if delay:
 				timer = int(delay)
-			popuploop(popup1,msgglobal,timer)
+			popuploop(popup1,body,timer)
 		except:
 			pass
 			
 	if popup2:
 		try:
-			text = popup2 + '\n' + msgglobal
+			text = popup2 + '\n' + body
 			timer = '30'
 			if delay:
 				timer = int(delay)
