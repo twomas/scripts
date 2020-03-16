@@ -3,11 +3,11 @@
 
 import sys
 import json
-from random import randrange	
+from random import randrange
 from datetime import datetime
 
 msgglobal = ' ' # global
-	
+
 def requester(url,debug):
 	data_dict = None
 	try:
@@ -16,17 +16,16 @@ def requester(url,debug):
 		
 		response = requests.get(url, timeout=(1, 2))
 		debugPrint(url + ' ' + str(response),debug)
-
 	except:
 		pass
-	
+
 	try:
 		#print(json.loads(response.text))
 		data_dict = json.loads(response.text)
 		#print(data_dict)
 	except:
 		pass
-		
+
 	return data_dict
 
 def debugPrint(msg,debug):
@@ -41,7 +40,7 @@ def show(str):
 	print(str)
 	print(' ')
 	msgglobal = str
-	
+
 def notification(title,msg,timer):
 	try:
 		# python -m pip install plyer
@@ -60,7 +59,7 @@ def popuploop(title,msg,seconds):
 	# python -m pip install pysimplegui
 	import PySimpleGUI as sg
 	
-	sg.theme('DarkBlack')   # Add a touch of color
+	sg.theme('DarkBlack')	# Add a touch of color
 	# All the stuff inside your window.
 	layout = [ [ sg.Text(msg) ] ]
 
@@ -73,12 +72,41 @@ def popuploop(title,msg,seconds):
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
 	
+def popupimageloop(title,msg,seconds):
+	# python -m pip install pysimplegui
+	import PySimpleGUI as sg
+
+	sg.theme('DarkBlack')	# Add a touch of color
+	# All the stuff inside your window.
+	layout = [ 
+		[ sg.Text(msg) ],
+		[ sg.Graph(
+			canvas_size=(200, 100),
+			graph_bottom_left=(0, 0),
+			graph_top_right=(200, 200),
+			key='graph'
+		) ]
+	]
+
+	# Create the Window
+	if title:
+		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=.5, grab_anywhere=True)
+	else:
+		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=.5, grab_anywhere=True)
+
+	window.Finalize()
+	graph = window.Element('graph')
+	graph.DrawImage(filename='hsq.png', location=(0, 200))
+
+	event, values = window.Read(timeout=seconds * 1000) 
+	window.close()
+
 def random(dict,debug):
 	size = len(dict)
 	debugPrint('size: ' + str(size),debug)
 	index = randrange(int(size))
 	debugPrint('index: ' + str(index),debug)
-	
+
 	return index
 
 # https://github.com/fortrabbit/quotes/blob/master/quotes.json
@@ -115,7 +143,7 @@ def words(str_url,key,debug):
 		except:
 			debugPrint('words error!',debug)
 			pass
-			
+
 def phrasesFile(file,debug):
 	debugPrint('phrasesFile',debug)
 	try:
@@ -129,7 +157,13 @@ def phrasesFile(file,debug):
 	except:
 		debugPrint('phrasesFile error!',debug)
 		pass
-			
+
+def addTimeStamp(text):
+	dateTimeObj = datetime.now()
+	timestampStr = dateTimeObj.strftime('%H:%M:%S')
+	body = text + '\n' + timestampStr
+	return body
+
 def main():
 
 	global msgglobal
@@ -137,28 +171,33 @@ def main():
 	notify = None
 	popup1 = None
 	popup2 = None
+	popup3 = None
 	delay = None
+	timer = '3'
 	file = 'phrases.json'
-	
+
 	try:
 		import argparse
-		
+
 		parser = argparse.ArgumentParser()
 		parser.add_argument("-d", "--debug", help="debug info", action="store_true")
 		parser.add_argument("-t", "--test", help="run tests", action="store_true")
 		parser.add_argument("-n", "--notify", help="show notification", type=str)
 		parser.add_argument("-p", "--popup1", help="show popup1", type=str)
 		parser.add_argument("-q", "--popup2", help="show popup2", type=str)
+		parser.add_argument("-i", "--popup3", help="show popup3", type=str)
 		parser.add_argument("-c", "--delay", help="show popup time", type=str)
 		parser.add_argument("-f", "--file", help="a json file with phrases", type=str)
 		args = parser.parse_args()
-		
+
 		if args.notify:
 			notify = args.notify
 		if args.popup1:
 			popup1 = args.popup1
 		if args.popup2:
 			popup2 = args.popup2
+		if args.popup3:
+			popup3 = args.popup3
 		if args.delay:
 			delay = args.delay
 		if args.file:
@@ -188,13 +227,14 @@ def main():
 			notify = 'notify'
 			popup1 = 'popup1'
 			popup2 = 'popup2'
+			popup3 = 'popup3'
 	except:
 		debugPrint('test error!',debug)
 		debug = False
-	
+
 	random = randrange(6+2) # An effort to hit quotes more often
 	debugPrint('random number: ' + str(random),debug)
-	
+
 	if random == 0:
 		words('https://randomwordgenerator.com/json/phrases.json',None,debug)
 	elif random == 1:
@@ -209,36 +249,36 @@ def main():
 		phrasesFile(file,debug)
 	else:
 		quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
-		
-	dateTimeObj = datetime.now()
-	timestampStr = dateTimeObj.strftime('%H:%M:%S')
-	body = timestampStr + '\n' + msgglobal
-	
+
+	if delay:
+		timer = int(delay)
+
 	if notify:
 		try:
-			timer = '3'
-			if delay:
-				timer = int(delay)
+			body = msgglobal
 			notification(notify,body,timer)
 		except:
 			pass
-		
+
 	if popup1:
 		try:
-			timer = '30'
-			if delay:
-				timer = int(delay)
+			body = addTimeStamp(msgglobal)
 			popuploop(popup1,body,timer)
 		except:
 			pass
-			
+
 	if popup2:
 		try:
-			text = popup2 + '\n' + body
-			timer = '30'
-			if delay:
-				timer = int(delay)
-			popuploop(None,text,timer)
+			body = popup2 + '\n' + msgglobal
+			body = addTimeStamp(body)
+			popuploop(None,body,timer)
+		except:
+			pass
+			
+	if popup3:
+		try:
+			body = addTimeStamp(msgglobal)
+			popupimageloop(popup3,body,timer)
 		except:
 			pass
 
