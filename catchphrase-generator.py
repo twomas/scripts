@@ -85,7 +85,6 @@ def random(dict,debug):
 def quotes(str_url,debug):
 	debugPrint('quotes',debug)
 
-	#for url in [str_url,str_url]:
 	for url in [str_url]:
 		try:
 			data_dict = requester(url,debug)
@@ -102,7 +101,6 @@ def quotes(str_url,debug):
 def words(str_url,key,debug):
 	debugPrint('words',debug)
 
-	#for url in [str_url,str_url]:
 	for url in [str_url]:
 		try:
 			data_dict = requester(url,debug)
@@ -117,22 +115,20 @@ def words(str_url,key,debug):
 		except:
 			debugPrint('words error!',debug)
 			pass
-
-# https://github.com/twomas/scripts/blob/master/phrases.json
-def phrases(str_url,debug):
-	debugPrint('phrases',debug)
-	#for url in [str_url,str_url]:
-	for url in [str_url]:
-		try:
-			data_dict = requester(url,debug)
-			index = random(data_dict,debug)
-			text = data_dict[index]['text']
-			more = data_dict[index]['more']
-			sentence = text + '\n' + more
-			show(sentence)
-		except:
-			debugPrint('phrases error!',debug)
-			pass
+			
+def phrasesFile(file,debug):
+	debugPrint('phrasesFile',debug)
+	try:
+		with open(file) as f:
+			data_dict = json.load(f)
+		index = random(data_dict,debug)
+		text = data_dict[index]['text']
+		more = data_dict[index]['more']
+		sentence = text + '\n' + more
+		show(sentence)
+	except:
+		debugPrint('phrasesFile error!',debug)
+		pass
 			
 def main():
 
@@ -142,6 +138,7 @@ def main():
 	popup1 = None
 	popup2 = None
 	delay = None
+	file = 'phrases.json'
 	
 	try:
 		import argparse
@@ -153,6 +150,7 @@ def main():
 		parser.add_argument("-p", "--popup1", help="show popup1", type=str)
 		parser.add_argument("-q", "--popup2", help="show popup2", type=str)
 		parser.add_argument("-c", "--delay", help="show popup time", type=str)
+		parser.add_argument("-f", "--file", help="a json file with phrases", type=str)
 		args = parser.parse_args()
 		
 		if args.notify:
@@ -163,6 +161,8 @@ def main():
 			popup2 = args.popup2
 		if args.delay:
 			delay = args.delay
+		if args.file:
+			file = args.file
 		if args.debug:
 			debug = True
 		if args.test:
@@ -183,7 +183,7 @@ def main():
 			words('https://randomwordgenerator.com/json/fake-words.json','word',debug)
 			words('https://randomwordgenerator.com/json/make-money.json','idea',debug)
 			words('https://randomwordgenerator.com/json/phrases.json',None,debug)
-			phrases('https://raw.githubusercontent.com/twomas/scripts/master/phrases.json',debug)
+			phrasesFile(file,debug)
 			delay = 5
 			notify = 'notify'
 			popup1 = 'popup1'
@@ -206,7 +206,7 @@ def main():
 	elif random == 4:
 		words('https://randomwordgenerator.com/json/questions.json','question',debug)
 	elif random == 5:
-		phrases('https://raw.githubusercontent.com/twomas/scripts/master/phrases.json',debug)
+		phrasesFile(file,debug)
 	else:
 		quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 		

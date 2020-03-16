@@ -9,9 +9,9 @@ def show(str):
 
 def main():
 	with open('phrases.json') as f:
-	  array = json.load(f)
+	  data_dict = json.load(f)
 
-	for object in array:
+	for object in data_dict:
 		text = object['text']
 		more = object['more']
 		sentence = text + '\n' + more
