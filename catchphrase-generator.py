@@ -3,6 +3,7 @@
 
 import sys
 import json
+import os
 from random import randrange
 from datetime import datetime
 
@@ -72,7 +73,27 @@ def popuploop(title,msg,seconds):
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
 	
-def popupimageloop(title,msg,seconds):
+def getimage():
+	d = 'images/'
+	count = 0
+	for path in os.listdir(d):
+		if os.path.isfile(os.path.join(d, path)):
+			count += 1
+
+	index = randrange(count)
+	count = 0
+	for path in os.listdir(d):
+		if os.path.isfile(os.path.join(d, path)):
+			if (index == count):
+				break
+			else:
+				count += 1
+
+	image = d + path
+
+	return image
+
+def popupimageloop(title,msg,seconds,debug):
 	# python -m pip install pysimplegui
 	import PySimpleGUI as sg
 
@@ -96,7 +117,9 @@ def popupimageloop(title,msg,seconds):
 
 	window.Finalize()
 	graph = window.Element('graph')
-	graph.DrawImage(filename='hsq.png', location=(0, 200))
+	image = getimage()
+	debugPrint(image,debug)
+	graph.DrawImage(filename=image, location=(0, 200))
 
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
@@ -278,7 +301,7 @@ def main():
 	if popup3:
 		try:
 			body = addTimeStamp(msgglobal)
-			popupimageloop(popup3,body,timer)
+			popupimageloop(popup3,body,timer,debug)
 		except:
 			pass
 
