@@ -2,7 +2,7 @@
 # Script catch phrase
 Add catchphrase-generator.py as the last line in your build process 😊<br>
 
-Python packages needed:<br>
+Open source thanks for Python packages needed:<br>
 requests<br>
 plyer (Notifications for Windows)<br>
 pysimplegui<br>
@@ -21,4 +21,8 @@ See also example.bat for more examples<br>
 ![Popup1](https://github.com/twomas/scripts/blob/master/screenshots/popup1.png)
 <br>
 ![Console](https://github.com/twomas/scripts/blob/master/screenshots/console.png)
-<br>
+
+# Thanks
+Content is fetched from:<br>
+https://randomwordgenerator.com/<br>
+https://github.com/fortrabbit/quotes<br>
