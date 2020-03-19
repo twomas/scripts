@@ -196,7 +196,7 @@ def main():
 	popup2 = None
 	popup3 = None
 	delay = None
-	timer = '3'
+	timer = 5
 	file = 'phrases.json'
 
 	try:
