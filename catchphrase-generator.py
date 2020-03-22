@@ -4,13 +4,15 @@
 import sys
 import json
 import os
+import base64
 from random import randrange
 from datetime import datetime
+from io import BytesIO
 
 msgglobal = ' ' # global
 
 def requester(url,debug):
-	data_dict = None
+	response = None
 	try:
 		# python -m pip install requests
 		import requests
@@ -20,7 +22,13 @@ def requester(url,debug):
 	except:
 		pass
 
+	return response
+
+def getJson(url,debug):
+	data_dict = None
+
 	try:
+		response = requester(url,debug)
 		#print(json.loads(response.text))
 		data_dict = json.loads(response.text)
 		#print(data_dict)
@@ -72,8 +80,38 @@ def popuploop(title,msg,seconds):
 	
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
+
+def scaleImage(input_image_path,
+				width,
+				height,
+				debug
+				):
+	from PIL import Image
 	
-def getimage():
+	original_image = Image.open(input_image_path)
+	w, h = original_image.size
+	debugPrint('Original image size is {wide} wide x {height} '
+		  'high'.format(wide=w, height=h),debug)
+	if width and height:
+		max_size = (width, height)
+	elif width:
+		max_size = (width, h)
+	elif height:
+		max_size = (w, height)
+	else:
+		# No width or height specified
+		raise RuntimeError('Width or height required!')
+	original_image.thumbnail(max_size, Image.ANTIALIAS)
+	byte_io = BytesIO()
+	original_image.save(byte_io, 'PNG')
+	scaled_image = Image.open(byte_io)
+	width, height = scaled_image.size
+	debugPrint('Scaled image size is {wide} wide x {height} '
+		  'high'.format(wide=width, height=height),debug)
+		  
+	return base64.b64encode(byte_io.getvalue()),width,height
+		  
+def getImage(width,height,debug):
 	d = 'images/'
 	count = 0
 	for path in os.listdir(d):
@@ -90,36 +128,43 @@ def getimage():
 				count += 1
 
 	image = d + path
+	debugPrint(image,debug)
+	scaledimage = scaleImage(image,width,height,debug)
 
-	return image
+	return scaledimage
 
-def popupimageloop(title,msg,seconds,debug):
+def popupimageloop(title,msg,seconds,alpha,width,debug):
 	# python -m pip install pysimplegui
 	import PySimpleGUI as sg
-
+	
+	height = width * 2
+	result = getImage(height,width,debug)
+	
+	image = result[0]
+	height = result[1]
+	width = result[2]
+	
 	sg.theme('DarkBlack')	# Add a touch of color
 	# All the stuff inside your window.
 	layout = [ 
 		[ sg.Text(msg) ],
 		[ sg.Graph(
-			canvas_size=(200, 100),
+			canvas_size=(height, width),
 			graph_bottom_left=(0, 0),
-			graph_top_right=(200, 200),
+			graph_top_right=(height, height),
 			key='graph'
 		) ]
 	]
 
 	# Create the Window
 	if title:
-		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=.5, grab_anywhere=True)
+		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=alpha, grab_anywhere=True)
 	else:
-		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=.5, grab_anywhere=True)
+		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=alpha, grab_anywhere=True)
 
 	window.Finalize()
 	graph = window.Element('graph')
-	image = getimage()
-	debugPrint(image,debug)
-	graph.DrawImage(filename=image, location=(0, 200))
+	graph.DrawImage(data=image, location=(0, height))
 
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
@@ -138,7 +183,7 @@ def quotes(str_url,debug):
 
 	for url in [str_url]:
 		try:
-			data_dict = requester(url,debug)
+			data_dict = getJson(url,debug)
 			index = random(data_dict,debug)
 			text = data_dict[index]['text']
 			author = data_dict[index]['author']
@@ -154,7 +199,7 @@ def words(str_url,key,debug):
 
 	for url in [str_url]:
 		try:
-			data_dict = requester(url,debug)
+			data_dict = getJson(url,debug)
 			index = random(data_dict['data'],debug)
 			if not key:
 				phrase = data_dict['data'][index]['phrase']
@@ -236,7 +281,7 @@ def main():
 			words('https://randomwordgeneratorrrr.com/json/questions.json','question',debug)
 			# should be ok
 			debugPrint('should be ok',debug)
-			requester('https://lionseksjo.wordpress.com/kontakt/',debug)
+			getJson('https://lionseksjo.wordpress.com/kontakt/',debug)
 			quotes('https://raw.githubusercontent.com/fortrabbit/quotes/master/quotes.json',debug)
 			words('https://randomwordgenerator.com/json/facts.json','fact',debug)
 			words('https://randomwordgenerator.com/json/act-of-kindness.json','act_of_kindness',debug)
@@ -283,6 +328,13 @@ def main():
 		except:
 			pass
 
+	if popup3:
+		try:
+			body = addTimeStamp(msgglobal)
+			popupimageloop(popup3,body,timer,0.7,90,debug)
+		except:
+			popup1 = popup3
+
 	if popup1:
 		try:
 			body = addTimeStamp(msgglobal)
@@ -295,13 +347,6 @@ def main():
 			body = popup2 + '\n' + msgglobal
 			body = addTimeStamp(body)
 			popuploop(None,body,timer)
-		except:
-			pass
-			
-	if popup3:
-		try:
-			body = addTimeStamp(msgglobal)
-			popupimageloop(popup3,body,timer,debug)
 		except:
 			pass
 
