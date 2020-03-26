@@ -5,19 +5,20 @@ import sys
 import json
 import os
 import base64
+import shutil
 from random import randrange
 from datetime import datetime
 from io import BytesIO
 
 msgglobal = ' ' # global
 
-def requester(url,debug):
+def requester(url,stream,debug):
 	response = None
 	try:
 		# python -m pip install requests
 		import requests
 		
-		response = requests.get(url, timeout=(1, 2))
+		response = requests.get(url,stream=stream,timeout=(1, 2))
 		debugPrint(url + ' ' + str(response),debug)
 	except:
 		pass
@@ -28,7 +29,7 @@ def getJson(url,debug):
 	data_dict = None
 
 	try:
-		response = requester(url,debug)
+		response = requester(url,False,debug)
 		#print(json.loads(response.text))
 		data_dict = json.loads(response.text)
 		#print(data_dict)
@@ -81,6 +82,32 @@ def popuploop(title,msg,seconds):
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
 
+def downloadImage(url,dirName,file,debug):
+	try:
+		response = requester(url,True,debug)
+		debugPrint(url + ' ' + file,debug)
+		with open(dirName + file, 'wb') as out_file:
+			shutil.copyfileobj(response.raw, out_file)
+		del response
+	except:
+		debugPrint('downloadImage error!',debug)
+		pass
+
+def downloadImages(file,debug):
+	# Only download if directory does not exists
+	dirName = 'images' + os.sep + 'downloads' + os.sep
+	if not os.path.exists(dirName):
+		os.makedirs(dirName)
+		
+		debugPrint('downloadImages',debug)
+		with open(file) as f:
+			data_dict = json.load(f)
+			
+		for i in range(len(data_dict)):
+			url = data_dict[i]['url']
+			name = data_dict[i]['name']
+			downloadImage(url,dirName,name,debug)
+
 def scaleImage(input_image_path,
 				width,
 				height,
@@ -112,22 +139,18 @@ def scaleImage(input_image_path,
 	return base64.b64encode(byte_io.getvalue()),width,height
 		  
 def getImage(width,height,debug):
-	d = 'images/'
-	count = 0
-	for path in os.listdir(d):
-		if os.path.isfile(os.path.join(d, path)):
-			count += 1
+	d = os.getcwd() + os.sep + 'images'
+	
+	pngfiles = []
+	for subdir, dirs, files in os.walk(d):
+		for file in files:
+			filepath = subdir + os.sep + file
+			if filepath.endswith('.png'):
+				pngfiles.append(filepath)
 
-	index = randrange(count)
-	count = 0
-	for path in os.listdir(d):
-		if os.path.isfile(os.path.join(d, path)):
-			if (index == count):
-				break
-			else:
-				count += 1
+	idx = randrange(int(len(pngfiles)))
+	image = pngfiles[idx]
 
-	image = d + path
 	debugPrint(image,debug)
 	scaledimage = scaleImage(image,width,height,debug)
 
@@ -243,6 +266,7 @@ def main():
 	delay = None
 	timer = 5
 	file = 'phrases.json'
+	fileImages = 'images.json'
 
 	try:
 		import argparse
@@ -330,6 +354,7 @@ def main():
 
 	if popup3:
 		try:
+			downloadImages(fileImages,debug)
 			body = addTimeStamp(msgglobal)
 			popupimageloop(popup3,body,timer,0.7,90,debug)
 		except:
