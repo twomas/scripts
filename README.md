@@ -6,6 +6,7 @@ Open source thanks for Python packages needed:<br>
 requests<br>
 plyer (Notifications for Windows)<br>
 pysimplegui<br>
+pillow<br>
 
 To test notification for Windows:<br>
 pythonw ./catchphrase-generator.py --notify 'ready! ✌️' -c 60<br>
