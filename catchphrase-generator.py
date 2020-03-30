@@ -82,6 +82,18 @@ def popuploop(title,msg,seconds):
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
 
+def downloadDilbertImage(dirName,debug):
+	try:
+		response = requester('https://dilbert.com/',False,debug)
+		content = str(response.content)
+		res = content.partition('data-image=')[2]
+		res = res.split('"')
+		url = 'http:' + res[1]
+		downloadImage(url,dirName,'dilbert.png',debug)
+	except:
+		debugPrint('downloadDilbertImage error!',debug)
+		pass
+
 def downloadImage(url,dirName,file,debug):
 	try:
 		response = requester(url,True,debug)
@@ -100,6 +112,7 @@ def downloadImages(file,debug):
 		os.makedirs(dirName)
 		
 		debugPrint('downloadImages',debug)
+		downloadDilbertImage(dirName,debug)
 		with open(file) as f:
 			data_dict = json.load(f)
 			
@@ -263,6 +276,7 @@ def main():
 	popup1 = None
 	popup2 = None
 	popup3 = None
+	popup3big = None
 	delay = None
 	timer = 5
 	file = 'phrases.json'
@@ -278,6 +292,7 @@ def main():
 		parser.add_argument("-p", "--popup1", help="show popup1", type=str)
 		parser.add_argument("-q", "--popup2", help="show popup2", type=str)
 		parser.add_argument("-i", "--popup3", help="show popup3", type=str)
+		parser.add_argument("-j", "--popup3big", help="show popup3big", type=str)
 		parser.add_argument("-c", "--delay", help="show popup time", type=str)
 		parser.add_argument("-f", "--file", help="a json file with phrases", type=str)
 		args = parser.parse_args()
@@ -290,6 +305,8 @@ def main():
 			popup2 = args.popup2
 		if args.popup3:
 			popup3 = args.popup3
+		if args.popup3big:
+			popup3big = args.popup3big
 		if args.delay:
 			delay = args.delay
 		if args.file:
@@ -320,6 +337,7 @@ def main():
 			popup1 = 'popup1'
 			popup2 = 'popup2'
 			popup3 = 'popup3'
+			popup3big = 'popup3big'
 	except:
 		debugPrint('test error!',debug)
 		debug = False
@@ -351,6 +369,14 @@ def main():
 			notification(notify,body,timer)
 		except:
 			pass
+		
+	if popup3big:
+		try:
+			downloadImages(fileImages,debug)
+			body = addTimeStamp(msgglobal)
+			popupimageloop(popup3big,body,timer,0.7,250,debug)
+		except:
+			popup1 = popup3big
 
 	if popup3:
 		try:

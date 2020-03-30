@@ -27,3 +27,4 @@ See also example.bat for more examples<br>
 Content is fetched from:<br>
 https://randomwordgenerator.com/<br>
 https://github.com/fortrabbit/quotes<br>
+https://dilbert.com/<br>
