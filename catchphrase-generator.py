@@ -84,12 +84,18 @@ def popuploop(title,msg,seconds):
 
 def downloadDilbertImage(dirName,debug):
 	try:
-		response = requester('https://dilbert.com/',False,debug)
-		content = str(response.content)
-		res = content.partition('data-image=')[2]
-		res = res.split('"')
-		url = 'http:' + res[1]
-		downloadImage(url,dirName,'dilbert.png',debug)
+		dateTimeObj = datetime.now()
+		day = dateTimeObj.strftime('%d')
+		name = 'dilbert-' + day + '.png'
+		path = dirName + name
+		# Only download if new day
+		if not os.path.exists(path):
+			response = requester('https://dilbert.com/',False,debug)
+			content = str(response.content)
+			res = content.partition('data-image=')[2]
+			res = res.split('"')
+			url = 'http:' + res[1]
+			downloadImage(url,dirName,name,debug)
 	except:
 		debugPrint('downloadDilbertImage error!',debug)
 		pass
@@ -105,14 +111,12 @@ def downloadImage(url,dirName,file,debug):
 		debugPrint('downloadImage error!',debug)
 		pass
 
-def downloadImages(file,debug):
-	# Only download if directory does not exists
-	dirName = 'images' + os.sep + 'downloads' + os.sep
+def downloadImages(dirName,file,debug):
+	# Only download from file if directory does not exists
 	if not os.path.exists(dirName):
 		os.makedirs(dirName)
 		
 		debugPrint('downloadImages',debug)
-		downloadDilbertImage(dirName,debug)
 		with open(file) as f:
 			data_dict = json.load(f)
 			
@@ -120,6 +124,8 @@ def downloadImages(file,debug):
 			url = data_dict[i]['url']
 			name = data_dict[i]['name']
 			downloadImage(url,dirName,name,debug)
+			
+	downloadDilbertImage(dirName,debug)
 
 def scaleImage(input_image_path,
 				width,
@@ -281,6 +287,16 @@ def main():
 	timer = 5
 	file = 'phrases.json'
 	fileImages = 'images.json'
+	dirNameDownloads = 'images' + os.sep + 'downloads' + os.sep
+	
+	phrases = 'my-phrases.json' # Check if user wants to override
+	if os.path.exists(phrases):
+		file = phrases
+
+	
+	images = 'my-images.json' # Check if user wants to override
+	if os.path.exists(images):
+		fileImages = images
 
 	try:
 		import argparse
@@ -294,7 +310,8 @@ def main():
 		parser.add_argument("-i", "--popup3", help="show popup3", type=str)
 		parser.add_argument("-j", "--popup3big", help="show popup3big", type=str)
 		parser.add_argument("-c", "--delay", help="show popup time", type=str)
-		parser.add_argument("-f", "--file", help="a json file with phrases", type=str)
+		parser.add_argument("-r", "--remove", help="remove images", action="store_true")
+		parser.add_argument("-a", "--download", help="download images", action="store_true")
 		args = parser.parse_args()
 
 		if args.notify:
@@ -309,10 +326,15 @@ def main():
 			popup3big = args.popup3big
 		if args.delay:
 			delay = args.delay
-		if args.file:
-			file = args.file
 		if args.debug:
 			debug = True
+		if args.remove:
+			shutil.rmtree(dirNameDownloads, ignore_errors=True)
+			return
+		if args.download:
+			shutil.rmtree(dirNameDownloads, ignore_errors=True)
+			downloadImages(dirNameDownloads,fileImages,debug)
+			return
 		if args.test:
 			debugPrint('test mode!!!',debug)
 			# test some errors
@@ -372,7 +394,7 @@ def main():
 		
 	if popup3big:
 		try:
-			downloadImages(fileImages,debug)
+			downloadImages(dirNameDownloads,fileImages,debug)
 			body = addTimeStamp(msgglobal)
 			popupimageloop(popup3big,body,timer,0.7,250,debug)
 		except:
@@ -380,7 +402,7 @@ def main():
 
 	if popup3:
 		try:
-			downloadImages(fileImages,debug)
+			downloadImages(dirNameDownloads,fileImages,debug)
 			body = addTimeStamp(msgglobal)
 			popupimageloop(popup3,body,timer,0.7,90,debug)
 		except:
