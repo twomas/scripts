@@ -94,7 +94,7 @@ def downloadDilbertImage(dirName,debug):
 			content = str(response.content)
 			res = content.partition('data-image=')[2]
 			res = res.split('"')
-			url = 'http:' + res[1]
+			url = 'https:' + res[1]
 			downloadImage(url,dirName,name,debug)
 	except:
 		debugPrint('downloadDilbertImage error!',debug)
