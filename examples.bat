@@ -1,3 +1,4 @@
+python -m pip install -r requirements.txt
 :: synchronous
 for /l %%x in (1, 1, 2) do (
 	powershell python .\catchphrase-generator.py --notify		"notify"	-c 1
