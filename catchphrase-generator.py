@@ -75,12 +75,20 @@ def popuploop(title,msg,seconds):
 
 	# Create the Window
 	if title:
-		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=.5, grab_anywhere=True)
+		window = sg.Window(title,layout,no_titlebar=False,alpha_channel=.5,grab_anywhere=True)
 	else:
-		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=.5, grab_anywhere=True)
+		window = sg.Window(title,layout,no_titlebar=True,alpha_channel=.5,grab_anywhere=True)
 	
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
+	
+def notificationloop(title,msg,seconds):
+	# python -m pip install pysimplegui
+	import PySimpleGUI as sg
+	
+	sg.theme('DarkBlack')	# Add a touch of color
+
+	sg.SystemTray.notify(title,msg,display_duration_in_ms=seconds * 1000)
 
 def downloadDilbertImage(dirName,debug):
 	try:
@@ -191,22 +199,22 @@ def popupimageloop(title,msg,seconds,alpha,width,debug):
 	layout = [ 
 		[ sg.Text(msg) ],
 		[ sg.Graph(
-			canvas_size=(height, width),
-			graph_bottom_left=(0, 0),
-			graph_top_right=(height, height),
+			canvas_size=(height,width),
+			graph_bottom_left=(0,0),
+			graph_top_right=(height,height),
 			key='graph'
 		) ]
 	]
 
 	# Create the Window
 	if title:
-		window = sg.Window(title, layout, no_titlebar=False, alpha_channel=alpha, grab_anywhere=True)
+		window = sg.Window(title,layout,no_titlebar=False,alpha_channel=alpha,grab_anywhere=True)
 	else:
-		window = sg.Window(title, layout, no_titlebar=True, alpha_channel=alpha, grab_anywhere=True)
+		window = sg.Window(title,layout,no_titlebar=True,alpha_channel=alpha,grab_anywhere=True)
 
 	window.Finalize()
 	graph = window.Element('graph')
-	graph.DrawImage(data=image, location=(0, height))
+	graph.DrawImage(data=image,location=(0,height))
 
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
@@ -277,17 +285,18 @@ def addTimeStamp(text):
 def main():
 
 	global msgglobal
-	debug = False
-	notify = None
-	popup1 = None
-	popup2 = None
-	popup3 = None
-	popup3big = None
-	delay = None
-	timer = 5
-	file = 'phrases.json'
-	fileImages = 'images.json'
-	dirNameDownloads = 'images' + os.sep + 'downloads' + os.sep
+	debug 				= False
+	notify 				= None
+	notify2 			= None
+	popup1 				= None
+	popup2 				= None
+	popup3 				= None
+	popup3big 			= None
+	delay 				= None
+	timer 				= 5
+	file 				= 'phrases.json'
+	fileImages 			= 'images.json'
+	dirNameDownloads 	= 'images' + os.sep + 'downloads' + os.sep
 	
 	phrases = 'my-phrases.json' # Check if user wants to override
 	if os.path.exists(phrases):
@@ -302,20 +311,23 @@ def main():
 		import argparse
 
 		parser = argparse.ArgumentParser()
-		parser.add_argument("-d", "--debug", help="debug info", action="store_true")
-		parser.add_argument("-t", "--test", help="run tests", action="store_true")
-		parser.add_argument("-n", "--notify", help="show notification", type=str)
-		parser.add_argument("-p", "--popup1", help="show popup1", type=str)
-		parser.add_argument("-q", "--popup2", help="show popup2", type=str)
-		parser.add_argument("-i", "--popup3", help="show popup3", type=str)
-		parser.add_argument("-j", "--popup3big", help="show popup3big", type=str)
-		parser.add_argument("-c", "--delay", help="show popup time", type=str)
-		parser.add_argument("-r", "--remove", help="remove images", action="store_true")
-		parser.add_argument("-a", "--download", help="download images", action="store_true")
+		parser.add_argument("-d", "--debug", 		help="debug info", 			action="store_true")
+		parser.add_argument("-t", "--test", 		help="run tests", 			action="store_true")
+		parser.add_argument("-n", "--notify", 		help="show notification", 	type=str)
+		parser.add_argument("-m", "--notify2", 		help="show notification2", 	type=str)
+		parser.add_argument("-p", "--popup1", 		help="show popup1", 		type=str)
+		parser.add_argument("-q", "--popup2", 		help="show popup2", 		type=str)
+		parser.add_argument("-i", "--popup3", 		help="show popup3", 		type=str)
+		parser.add_argument("-j", "--popup3big", 	help="show popup3big", 		type=str)
+		parser.add_argument("-c", "--delay", 		help="show popup time", 	type=str)
+		parser.add_argument("-r", "--remove", 		help="remove images", 		action="store_true")
+		parser.add_argument("-a", "--download", 	help="download images", 	action="store_true")
 		args = parser.parse_args()
 
 		if args.notify:
 			notify = args.notify
+		if args.notify2:
+			notify2 = args.notify2
 		if args.popup1:
 			popup1 = args.popup1
 		if args.popup2:
@@ -354,12 +366,13 @@ def main():
 			words('https://randomwordgenerator.com/json/make-money.json','idea',debug)
 			words('https://randomwordgenerator.com/json/phrases.json',None,debug)
 			phrasesFile(file,debug)
-			delay = 5
-			notify = 'notify'
-			popup1 = 'popup1'
-			popup2 = 'popup2'
-			popup3 = 'popup3'
-			popup3big = 'popup3big'
+			delay 		= 5
+			notify  	= 'notify'
+			notify2 	= 'notify2'
+			popup1  	= 'popup1'
+			popup2  	= 'popup2'
+			popup3  	= 'popup3'
+			popup3big 	= 'popup3big'
 	except:
 		debugPrint('test error!',debug)
 		debug = False
@@ -389,6 +402,13 @@ def main():
 		try:
 			body = msgglobal
 			notification(notify,body,timer)
+		except:
+			pass
+	
+	if notify2:
+		try:	
+			body = addTimeStamp(msgglobal)
+			notificationloop(notify2,body,timer)
 		except:
 			pass
 		
