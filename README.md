@@ -15,6 +15,8 @@ See also example.bat for more examples<br>
 # Catch phrase examples
 ![Notification](https://github.com/twomas/scripts/blob/master/screenshots/notification.png)
 <br>
+![notify2](https://github.com/twomas/scripts/blob/master/screenshots/notify2.png)
+<br>
 ![Popup3](https://github.com/twomas/scripts/blob/master/screenshots/popup3.png)
 <br>
 ![Popup2](https://github.com/twomas/scripts/blob/master/screenshots/popup2.png)
