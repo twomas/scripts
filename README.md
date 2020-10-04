@@ -10,7 +10,7 @@ pillow<br>
 playsound<br>
 
 To test notification for Windows:<br>
-pythonw ./catchphrase-generator.py --notify 'ready! ✌️' -c 60<br>
+pythonw ./catchphrase-generator.py --notify 'ready! ✌️' -c 60 --sound<br>
 See also example.bat for more examples<br>
 
 # Catch phrase examples
