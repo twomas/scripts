@@ -102,13 +102,20 @@ def downloadDilbertImage(dirName,debug):
 			content = str(response.content)
 			res = content.partition('data-image=')[2]
 			res = res.split('"')
-			url = 'https:' + res[1]
-			downloadImage(url,dirName,name,debug)
+			url = res[1]
+			download(url,dirName,name,debug)
 	except:
 		debugPrint('downloadDilbertImage error!',debug)
 		pass
 
-def downloadImage(url,dirName,file,debug):
+def remove(filename,debug):
+	try:
+		os.remove(filename)
+	except:
+		debugPrint('downloadDilbertImage error!',debug)
+		pass
+
+def download(url,dirName,file,debug):
 	try:
 		response = requester(url,True,debug)
 		debugPrint(url + ' ' + file,debug)
@@ -116,7 +123,8 @@ def downloadImage(url,dirName,file,debug):
 			shutil.copyfileobj(response.raw, out_file)
 		del response
 	except:
-		debugPrint('downloadImage error!',debug)
+		debugPrint('download error!',debug)
+		remove(dirName + file,debug)
 		pass
 
 def downloadImages(dirName,file,debug):
@@ -131,7 +139,7 @@ def downloadImages(dirName,file,debug):
 		for i in range(len(data_dict)):
 			url = data_dict[i]['url']
 			name = data_dict[i]['name']
-			downloadImage(url,dirName,name,debug)
+			download(url,dirName,name,debug)
 			
 	downloadDilbertImage(dirName,debug)
 
@@ -218,6 +226,45 @@ def popupimageloop(title,msg,seconds,alpha,width,debug):
 
 	event, values = window.Read(timeout=seconds * 1000) 
 	window.close()
+	
+def downloadSounds(dirName,file,debug):
+	# Only download from file if directory does not exists
+	if not os.path.exists(dirName):
+		os.makedirs(dirName)
+		
+		debugPrint('downloadSounds',debug)
+		with open(file) as f:
+			data_dict = json.load(f)
+			
+		for i in range(len(data_dict)):
+			url = data_dict[i]['url']
+			name = data_dict[i]['name']
+			download(url,dirName,name,debug)
+
+def getSound(debug):
+	d = os.getcwd() + os.sep + 'sounds'
+	
+	soundfiles = []
+	for subdir, dirs, files in os.walk(d):
+		for file in files:
+			filepath = subdir + os.sep + file
+			if filepath.endswith('.wav'):
+				soundfiles.append(filepath)
+			if filepath.endswith('.mp3'):
+				soundfiles.append(filepath)
+
+	idx = randrange(int(len(soundfiles)))
+	sound = soundfiles[idx]
+
+	debugPrint(sound,debug)
+
+	return sound
+	
+def playSound(debug):
+	from playsound import playsound
+	
+	sound = getSound(debug)
+	playsound(sound)
 
 def random(dict,debug):
 	size = len(dict)
@@ -296,32 +343,41 @@ def main():
 	timer 				= 5
 	file 				= 'phrases.json'
 	fileImages 			= 'images.json'
-	dirNameDownloads 	= 'images' + os.sep + 'downloads' + os.sep
+	dirNameImagesDownloads 	= 'images' + os.sep + 'downloads' + os.sep
+	sound 				= False
+	fileSounds			= 'sounds.json'
+	dirNameSoundsDownloads 	= 'sounds' + os.sep + 'downloads' + os.sep
 	
 	phrases = 'my-phrases.json' # Check if user wants to override
 	if os.path.exists(phrases):
 		file = phrases
 
-	
 	images = 'my-images.json' # Check if user wants to override
 	if os.path.exists(images):
 		fileImages = images
+		
+	sounds = 'my-sounds.json' # Check if user wants to override
+	if os.path.exists(sounds):
+		fileSounds = sounds
 
 	try:
 		import argparse
 
 		parser = argparse.ArgumentParser()
-		parser.add_argument("-d", "--debug", 		help="debug info", 			action="store_true")
-		parser.add_argument("-t", "--test", 		help="run tests", 			action="store_true")
-		parser.add_argument("-n", "--notify", 		help="show notification", 	type=str)
-		parser.add_argument("-m", "--notify2", 		help="show notification2", 	type=str)
-		parser.add_argument("-p", "--popup1", 		help="show popup1", 		type=str)
-		parser.add_argument("-q", "--popup2", 		help="show popup2", 		type=str)
-		parser.add_argument("-i", "--popup3", 		help="show popup3", 		type=str)
-		parser.add_argument("-j", "--popup3big", 	help="show popup3big", 		type=str)
-		parser.add_argument("-c", "--delay", 		help="show popup time", 	type=str)
-		parser.add_argument("-r", "--remove", 		help="remove images", 		action="store_true")
-		parser.add_argument("-a", "--download", 	help="download images", 	action="store_true")
+		parser.add_argument("-d", "--debug", 			help="debug info", 			action="store_true")
+		parser.add_argument("-t", "--test", 			help="run tests", 			action="store_true")
+		parser.add_argument("-n", "--notify", 			help="show notification", 	type=str)
+		parser.add_argument("-m", "--notify2", 			help="show notification2", 	type=str)
+		parser.add_argument("-p", "--popup1", 			help="show popup1", 		type=str)
+		parser.add_argument("-q", "--popup2", 			help="show popup2", 		type=str)
+		parser.add_argument("-i", "--popup3", 			help="show popup3", 		type=str)
+		parser.add_argument("-j", "--popup3big", 		help="show popup3big", 		type=str)
+		parser.add_argument("-c", "--delay", 			help="show popup time", 	type=str)
+		parser.add_argument("-r", "--remove", 			help="remove images", 		action="store_true")
+		parser.add_argument("-a", "--download", 		help="download images", 	action="store_true")
+		parser.add_argument("-s", "--sound", 			help="play sound", 			action="store_true")
+		parser.add_argument("-u", "--removesounds", 	help="remove sounds", 		action="store_true")
+		parser.add_argument("-x", "--downloadsounds",	help="download sounds", 	action="store_true")
 		args = parser.parse_args()
 
 		if args.notify:
@@ -341,11 +397,20 @@ def main():
 		if args.debug:
 			debug = True
 		if args.remove:
-			shutil.rmtree(dirNameDownloads, ignore_errors=True)
+			shutil.rmtree(dirNameImagesDownloads, ignore_errors=True)
 			return
 		if args.download:
-			shutil.rmtree(dirNameDownloads, ignore_errors=True)
-			downloadImages(dirNameDownloads,fileImages,debug)
+			shutil.rmtree(dirNameImagesDownloads, ignore_errors=True)
+			downloadImages(dirNameImagesDownloads,fileImages,debug)
+			return
+		if args.sound:
+			sound = True
+		if args.removesounds:
+			shutil.rmtree(dirNameSoundsDownloads, ignore_errors=True)
+			return
+		if args.downloadsounds:
+			shutil.rmtree(dirNameSoundsDownloads, ignore_errors=True)
+			downloadSounds(dirNameSoundsDownloads,fileSounds,debug)
 			return
 		if args.test:
 			debugPrint('test mode!!!',debug)
@@ -373,6 +438,7 @@ def main():
 			popup2  	= 'popup2'
 			popup3  	= 'popup3'
 			popup3big 	= 'popup3big'
+			sound 		= True
 	except:
 		debugPrint('test error!',debug)
 		debug = False
@@ -402,6 +468,7 @@ def main():
 		try:
 			body = msgglobal
 			notification(notify,body,timer)
+			debugPrint('notify error!',debug)
 		except:
 			pass
 	
@@ -410,22 +477,25 @@ def main():
 			body = addTimeStamp(msgglobal)
 			notificationloop(notify2,body,timer)
 		except:
+			debugPrint('notificationloop error!',debug)
 			pass
 		
 	if popup3big:
 		try:
-			downloadImages(dirNameDownloads,fileImages,debug)
+			downloadImages(dirNameImagesDownloads,fileImages,debug)
 			body = addTimeStamp(msgglobal)
 			popupimageloop(popup3big,body,timer,0.7,250,debug)
 		except:
+			debugPrint('popup3big error!',debug)
 			popup1 = popup3big
 
 	if popup3:
 		try:
-			downloadImages(dirNameDownloads,fileImages,debug)
+			downloadImages(dirNameImagesDownloads,fileImages,debug)
 			body = addTimeStamp(msgglobal)
 			popupimageloop(popup3,body,timer,0.7,90,debug)
 		except:
+			debugPrint('popup3 error!',debug)
 			popup1 = popup3
 
 	if popup1:
@@ -433,6 +503,7 @@ def main():
 			body = addTimeStamp(msgglobal)
 			popuploop(popup1,body,timer)
 		except:
+			debugPrint('popup1 error!',debug)
 			pass
 
 	if popup2:
@@ -441,6 +512,15 @@ def main():
 			body = addTimeStamp(body)
 			popuploop(None,body,timer)
 		except:
+			debugPrint('popup2 error!',debug)
+			pass
+			
+	if sound:
+		try:
+			downloadSounds(dirNameSoundsDownloads,fileSounds,debug)
+			playSound(debug)
+		except:
+			debugPrint('playSound error!',debug)
 			pass
 
 if __name__ == "__main__":

@@ -3,3 +3,4 @@ requests
 plyer
 pysimplegui
 pillow
+playsound
