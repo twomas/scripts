@@ -7,6 +7,7 @@ requests<br>
 plyer (Notifications for Windows)<br>
 pysimplegui<br>
 pillow<br>
+playsound<br>
 
 To test notification for Windows:<br>
 pythonw ./catchphrase-generator.py --notify 'ready! ✌️' -c 60<br>
