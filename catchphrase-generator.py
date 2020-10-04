@@ -9,6 +9,7 @@ import shutil
 from random import randrange
 from datetime import datetime
 from io import BytesIO
+from threading import Thread
 
 msgglobal = ' ' # global
 
@@ -261,10 +262,14 @@ def getSound(debug):
 	return sound
 	
 def playSound(debug):
-	from playsound import playsound
-	
-	sound = getSound(debug)
-	playsound(sound)
+	try:
+		from playsound import playsound
+
+		sound = getSound(debug)
+		playsound(sound)
+	except:
+		debugPrint('playSound error!',debug)
+		pass
 
 def random(dict,debug):
 	size = len(dict)
@@ -464,14 +469,28 @@ def main():
 	if delay:
 		timer = int(delay)
 
+	try:
+		downloadImages(dirNameImagesDownloads,fileImages,debug)
+		downloadSounds(dirNameSoundsDownloads,fileSounds,debug)
+	except:
+		debugPrint('downloads error!',debug)
+
+	if sound:
+		try:
+			thread = Thread(target = playSound, args = (debug, ))
+			thread.start()
+		except:
+			debugPrint('thread error!',debug)
+			pass
+
 	if notify:
 		try:
 			body = msgglobal
 			notification(notify,body,timer)
-			debugPrint('notify error!',debug)
 		except:
+			debugPrint('notify error!',debug)
 			pass
-	
+
 	if notify2:
 		try:	
 			body = addTimeStamp(msgglobal)
@@ -482,7 +501,6 @@ def main():
 		
 	if popup3big:
 		try:
-			downloadImages(dirNameImagesDownloads,fileImages,debug)
 			body = addTimeStamp(msgglobal)
 			popupimageloop(popup3big,body,timer,0.7,250,debug)
 		except:
@@ -491,7 +509,6 @@ def main():
 
 	if popup3:
 		try:
-			downloadImages(dirNameImagesDownloads,fileImages,debug)
 			body = addTimeStamp(msgglobal)
 			popupimageloop(popup3,body,timer,0.7,90,debug)
 		except:
@@ -513,14 +530,6 @@ def main():
 			popuploop(None,body,timer)
 		except:
 			debugPrint('popup2 error!',debug)
-			pass
-			
-	if sound:
-		try:
-			downloadSounds(dirNameSoundsDownloads,fileSounds,debug)
-			playSound(debug)
-		except:
-			debugPrint('playSound error!',debug)
 			pass
 
 if __name__ == "__main__":
